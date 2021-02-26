@@ -214,6 +214,23 @@ const Contract = function () {
     });
   }
 
+  function totalStaked(obj) {
+    let userAddress = localStorage.getItem("userAddress");
+    let tokenAddress = token;
+    let tokenContract = new web3.eth.Contract(tokenABI, tokenAddress);
+    return new Promise((resolve, reject) => {
+      tokenContract.methods
+        .balanceOf(staking)
+        .call(function (err, body) {
+          if (!err) {
+            resolve(body);
+          } else {
+            reject(err);
+          }
+        });
+    });
+  }
+
   function tokenBalance(obj) {
     let userAddress = localStorage.getItem("userAddress");
     let tokenAddress = token;
@@ -264,7 +281,7 @@ const Contract = function () {
     });
   }
 
-   return { getBalance, getStart, getRoundTotal, getUserInfo, enter, withdraw, deposit, withdrawStaking, claim, transfer, balanceOf, dividendsOf, allowance, approve, tokenBalance };
+   return { getBalance, getStart, getRoundTotal, getUserInfo, enter, withdraw, deposit, withdrawStaking, claim, transfer, balanceOf, dividendsOf, allowance, approve, tokenBalance, totalStaked };
 
  }
 
@@ -306,7 +323,6 @@ $(window).on('load', async function() {
   async function withdraw() {
     let round = $('#withdrawInput').val();
     round = parseInt(round);
-    console.log(round);
     await contract.withdraw({ round:round });
   }
 
@@ -323,7 +339,6 @@ $(window).on('load', async function() {
     amount = new BigNumber(amount).multipliedBy(10 ** 18);
     amount = amount.toFixed();
     let allowed = await allowance();
-    console.log(allowed, amount);
     if(parseFloat(allowed) < parseFloat(amount)) {
       await approve();
       await delay(5000);
@@ -454,12 +469,15 @@ $(window).on('load', async function() {
     divs = parseFloat(divs) / 1e18;
     let balanceOf = await contract.balanceOf();
     balanceOf = parseFloat(balanceOf) / 1e18;
+    let totalStaked = await contract.totalStaked();
+    totalStaked = parseFloat(totalStaked) / 1e18;
     $('#divs').text(divs);
     $('#stakeBalance').text(balanceOf);
     $('#rate').text(rate);
     $('#maxTokens').text(maxTokens);
     $('#auction').text(userInfo);
     $('#pool').text(roundTotal);
+    $('#totalStaked').text(totalStaked);
   }
 
   $('#withdrawInput').keyup(async function(e){

@@ -462,11 +462,12 @@ $(window).on('load', async function() {
     $('#pool').text(roundTotal);
   }
 
-  $('#withdrawInput').keypress(async function(e){
+  $('#withdrawInput').keyup(async function(e){
    let now = Date.parse(new Date()) / 1000;
    let round = (now - start) / auctionDelay;
    round = Math.floor(round);
-   let roundNum = parseInt(e.key);
+   let roundNum = $('#withdrawInput').val();
+   roundNum = parseInt(roundNum);
    if(roundNum >= round) {
      $('#withdraw').prop("disabled", true);;
      $('#warning').text('Round Has Not Ended.');

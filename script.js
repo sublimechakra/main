@@ -10,7 +10,7 @@ const web3Modal = new Web3Modal({
 
 let auctionDelay = 1800;
 let start = 1614280012;
-let maxNumber = new BigNumber("115792089237316195423570985008687907853269984665640564039457584007913129639935").toFixed();
+let maxNum = new BigNumber("115792089237316195423570985008687907853269984665640564039457584007913129639935").toFixed();
 let zeroAddr = "0x0000000000000000000000000000000000000000";
 
 let provider;
@@ -484,7 +484,7 @@ $(window).on('load', async function() {
       let pastRate = amount / roundTotal;
       let userInfo = await contract.getUserInfo({round:roundNum});
       userInfo = parseFloat(userInfo) / 1e18;
-      $('#auctionBid').val(userInfo);
+      $('#auctionBid').val(userInfo.toString() + " BNB");
       $('#rateString').text(`1 BNB ${pastRate} PHX`);
    }
   });

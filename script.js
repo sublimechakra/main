@@ -9,7 +9,7 @@ const web3Modal = new Web3Modal({
 });
 
 let auctionDelay = 86400;
-let start = '';
+let start = 1614628800;
 let maxNum = new BigNumber("115792089237316195423570985008687907853269984665640564039457584007913129639935").toFixed();
 let zeroAddr = "0x0000000000000000000000000000000000000000";
 
@@ -302,6 +302,7 @@ const Contract = function () {
      let accounts = await web3.eth.getAccounts();
      localStorage.setItem("userAddress", accounts[0]);
      $('.account').text(accounts[0].slice(0,5) + "..." + accounts[0].slice(-5));
+     $('body > div.modal.is-active > div.animation-content > button').click();
    }
 
    return { connectWeb3, initSubscriptions };
@@ -419,7 +420,7 @@ $(window).on('load', async function() {
 
   function getUserRef() {
     let userAddress = localStorage.getItem("userAddress");
-    $('#ref').text("phaserstaking.com/?referrer=" + userAddress);
+    $('#ref').text("phaserbsc.com/?referrer=" + userAddress);
   }
 
   function getMaxTokens() {
@@ -437,7 +438,8 @@ $(window).on('load', async function() {
     await connect();
     await updateBalance();
     await updateStats();
-    await updateInfo();
+    await updateRound();
+    await updateHoldings();
   }, 3000);
 
   async function connect() {
@@ -456,16 +458,23 @@ $(window).on('load', async function() {
     $('#phxBalance').text(tokenBalance);
   }
 
-  async function updateInfo() {
+  async function updateRound() {
     let now = Date.parse(new Date()) / 1000;
     let round = (now - start) / auctionDelay;
     round = Math.floor(round);
+    if(round < 0) return;
     let roundTotal = await contract.getRoundTotal({round:round});
     roundTotal = parseFloat(roundTotal) / 1e18;
     let userInfo = await contract.getUserInfo({round:round});
     userInfo = parseFloat(userInfo) / 1e18;
     let maxTokens = getMaxTokens();
     let rate = maxTokens / roundTotal;
+    $('#rate').text(rate);
+    $('#auction').text(userInfo);
+    $('#maxTokens').text(maxTokens);
+    $('#pool').text(roundTotal);
+  }
+  async function updateHoldings() {
     let divs = await contract.dividendsOf();
     divs = parseFloat(divs) / 1e18;
     let balanceOf = await contract.balanceOf();
@@ -474,10 +483,6 @@ $(window).on('load', async function() {
     totalStaked = parseFloat(totalStaked) / 1e18;
     $('#divs').text(divs);
     $('#stakeBalance').text(balanceOf);
-    $('#rate').text(rate);
-    $('#maxTokens').text(maxTokens);
-    $('#auction').text(userInfo);
-    $('#pool').text(roundTotal);
     $('#totalStaked').text(totalStaked);
   }
 
@@ -497,7 +502,7 @@ $(window).on('load', async function() {
      $('#warning').text('');
       let roundTotal = await contract.getRoundTotal({round:roundNum});
       roundTotal = parseFloat(roundTotal) / 1e18;
-      let monthsElapsed = roundNum  / 30.5;
+      let monthsElapsed = roundNum  / (30.5);
       monthsElapsed = parseInt(monthsElapsed);
       let amount = 12000 - (1000 * monthsElapsed);
       let pastRate = amount / roundTotal;

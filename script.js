@@ -232,6 +232,23 @@ const Contract = function () {
     });
   }
 
+  function lpBalance(obj) {
+    let userAddress = localStorage.getItem("userAddress");
+    let tokenAddress = lpToken;
+    let tokenContract = new web3.eth.Contract(tokenABI, tokenAddress);
+    return new Promise((resolve, reject) => {
+      tokenContract.methods
+        .balanceOf(userAddress)
+        .call(function (err, body) {
+          if (!err) {
+            resolve(body);
+          } else {
+            reject(err);
+          }
+        });
+    });
+  }
+
   function tokenBalance(obj) {
     let userAddress = localStorage.getItem("userAddress");
     let tokenAddress = token;
@@ -282,7 +299,7 @@ const Contract = function () {
     });
   }
 
-   return { getBalance, getStart, getRoundTotal, getUserInfo, enter, withdraw, deposit, withdrawStaking, claim, transfer, balanceOf, dividendsOf, allowance, approve, tokenBalance, totalStaked };
+   return { getBalance, getStart, getRoundTotal, getUserInfo, enter, withdraw, deposit, withdrawStaking, claim, transfer, balanceOf, dividendsOf, allowance, approve, tokenBalance, totalStaked, lpBalance };
 
  }
 
@@ -303,6 +320,7 @@ const Contract = function () {
      localStorage.setItem("userAddress", accounts[0]);
      $('.account').text(accounts[0].slice(0,5) + "..." + accounts[0].slice(-5));
      $('body > div.modal.is-active > div.animation-content > button').click();
+     $('#__layout > div > nav > div > div.navbar-menu > div.navbar-end > div > div > button').prop('disabled', true);
    }
 
    return { connectWeb3, initSubscriptions };
@@ -396,6 +414,7 @@ $(window).on('load', async function() {
     let now = Date.parse(new Date()) / 1000;
     let round = (now - start) / auctionDelay;
     round = Math.floor(round);
+    round = round < 0 ? "NOT_STARTED" : round;
     let nextRound = start + ((round + 1) * auctionDelay);
     let elapsed = getTimeRemaining(nextRound);
     let timeStr = `${elapsed.days} : ${elapsed.hours} : ${elapsed.minutes} : ${elapsed.seconds}`;
@@ -454,8 +473,11 @@ $(window).on('load', async function() {
     balance = parseFloat(balance) / 1e18;
     let tokenBalance = await contract.tokenBalance();
     tokenBalance = parseFloat(tokenBalance) / 1e18;
+    let lpBalance  = await contract.lpBalance();
+    lpBalance = parseFloat(lpBalance) / 1e18;
     $('#bnbBalance').text(balance);
     $('#phxBalance').text(tokenBalance);
+    $('#lpBalance').text(lpBalance);
   }
 
   async function updateRound() {

@@ -473,7 +473,7 @@ $(window).on('load', async function() {
     let tokenBalance = await contract.tokenBalance();
     tokenBalance = parseFloat(tokenBalance) / 1e18;
     let lpTokenBalance = await contract.lpTokenBalance();
-    lpTokenBalance = parseFloat(tokenBalance) / 1e18;
+    lpTokenBalance = parseFloat(lpTokenBalance) / 1e18;
     $('#bnbBalance').text(balance);
     $('#phxBalance').text(tokenBalance);
     $('#lpBalance').text(lpTokenBalance);

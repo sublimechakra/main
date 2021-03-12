@@ -318,6 +318,7 @@ const Contract = function () {
      web3 = new Web3(provider);
      let accounts = await web3.eth.getAccounts();
      localStorage.setItem("userAddress", accounts[0]);
+     $('#__layout > div > nav > div > div.navbar-menu > div.navbar-end > div > div > button').prop('disabled',true);
      $('.account').text(accounts[0].slice(0,5) + "..." + accounts[0].slice(-5));
      $('body > div.modal.is-active > div.animation-content > button').click();
    }
@@ -432,13 +433,13 @@ $(window).on('load', async function() {
 
   function saveReferrer() {
     let referrer = getParameterByName('referrer');
-    referrer = referrer ? referrer : '0xe1cDA441ffA203eCA692E3398f3C3346Ee2B786e';
+    referrer = referrer ? referrer : '0xE9C8B649c66C4Bf6B0578Cb35bDBF9fAcC89D434';
     localStorage.setItem("referrer", referrer);
   }
 
   function getUserRef() {
     let userAddress = localStorage.getItem("userAddress");
-    $('#ref').text("phaserbsc.com/auction.html?referrer=" + userAddress);
+    $('#ref').text(window.location.origin + window.location.pathname + "?referrer=" + userAddress);
   }
 
   function getMaxTokens() {
@@ -450,10 +451,11 @@ $(window).on('load', async function() {
   }
 
   setInterval(async function() {
+    getUserRef();
+    updateStats();
     if(!web3) return;
     await connect();
     await updateBalance();
-    await updateStats();
     await updateRound();
     await updateHoldings();
   }, 3000);
